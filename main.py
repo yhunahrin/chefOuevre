@@ -34,7 +34,7 @@ class Gui(QWidget):
         help = bar.addMenu("&Help")
         file.addAction("New...")
         open = QAction('Open..', self)
-        open.triggered.connect(self.readDataset)
+        open.triggered.connect(self.readData)
         file.addAction(open)
         file.addAction("Save...")
         save = QAction("Save", self)
@@ -60,13 +60,23 @@ class Gui(QWidget):
         else:
 
             event.ignore()
-
+    def readData(self):
+        [images_paths, labels]=self.readDataset()
+        label = QLabel()
+        print(images_paths)
+        pixmap = QPixmap(images_paths.index(1))
+        self.label.setPixmap(pixmap)
+        self.canvas.resize(pixmap.width(), pixmap.height())
     def readDataset(self):
         images_paths, labels = list(), list()
         dataset = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
         file = os.listdir(dataset)
+        count =0
         for data in file:
-            print(data)
+            images_paths.append(data)
+            labels.append(count)
+            count+=1
+        return images_paths,labels
     def Ex(self):
         dataset = tf.data.Dataset.from_tensor_slices()
        # unet = keras.models.load_model(filepath='\\FinalDocuments\\Trained_models\\UNET_b_160_IOU.h5')
