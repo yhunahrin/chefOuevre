@@ -2,7 +2,9 @@ import sys
 import h5py
 from PyQt5.QtWidgets import QWidget, QMessageBox, QApplication, QLabel, QMenu, QMenuBar, QAction,QFileDialog,QGroupBox,QVBoxLayout
 from PyQt5.QtGui import QIcon,QPixmap
-
+from tensorflow import keras
+import tensorflow as tf
+import os
 class Gui(QWidget):
 
     def __init__(self):
@@ -32,7 +34,7 @@ class Gui(QWidget):
         help = bar.addMenu("&Help")
         file.addAction("New...")
         open = QAction('Open..', self)
-        open.triggered.connect(self.openImage)
+        open.triggered.connect(self.readDataset)
         file.addAction(open)
         file.addAction("Save...")
         save = QAction("Save", self)
@@ -49,7 +51,7 @@ class Gui(QWidget):
     def closeEvent(self, event):
 
         reply = QMessageBox.question(self, 'Message',
-                                     "Are you sure to quit?", QMessageBox.Yes |
+                                     "Are you sure you want to quit?", QMessageBox.Yes |
                                      QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
@@ -59,7 +61,16 @@ class Gui(QWidget):
 
             event.ignore()
 
-
+    def readDataset(self):
+        images_paths, labels = list(), list()
+        dataset = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+        file = os.listdir(dataset)
+        for data in file:
+            print(data)
+    def Ex(self):
+        dataset = tf.data.Dataset.from_tensor_slices()
+       # unet = keras.models.load_model(filepath='\\FinalDocuments\\Trained_models\\UNET_b_160_IOU.h5')
+       # vgg = keras.models.load_model(filepath='\\FinalDocuments\\Trained_models\\VGG8_160_IOU.h5')
 def main():
 
     app = QApplication(sys.argv)
