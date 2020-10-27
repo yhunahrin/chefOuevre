@@ -1,7 +1,8 @@
 import sys
 import h5py
-from PyQt5.QtWidgets import QWidget, QMessageBox, QApplication, QLabel, QMenu, QMenuBar, QAction,QFileDialog,QGroupBox,QVBoxLayout
-from PyQt5.QtGui import QIcon,QPixmap
+from PyQt5.QtCore import QPoint, QRect
+from PyQt5.QtWidgets import QWidget, QMessageBox, QApplication, QLabel, QMenu, QMenuBar, QAction,QFileDialog,QGroupBox,QVBoxLayout,QToolBar
+from PyQt5.QtGui import QIcon,QPixmap,QPainter,QPen
 from tensorflow import keras
 import tensorflow as tf
 import os
@@ -32,6 +33,15 @@ class Gui(QWidget):
         self.canvas.setStyleSheet("QGroupBox { background-color: white ;border: 1px solid #9F9B9B}")
         self.canvas.move(100, 30)
         self.canvas.resize(900, 400)
+        self.mPixmap = QPixmap()
+        self.p1 = QPoint()
+        self.p1.setX(0)
+        self.p1.setY(0)
+        self.p2 = QPoint()
+        self.p2 = self.p1
+        self.mousePos = QPoint()
+        self.mouseDown = False
+        self.rect = QRect()
         layout = QVBoxLayout(self.canvas)
         layout.addWidget(self.label)
     def SetMenu(self):
@@ -47,28 +57,34 @@ class Gui(QWidget):
         file.addAction(open)
         save = QAction("Save..", self)
         save.setShortcut("Ctrl+S")
+        save.triggered.connect(self.saveImage)
         file.addAction(save)
         saveAs = QAction("SaveAs..", self)
         saveAs.triggered.connect(self.saveAs)
         file.addAction(saveAs)
+        toolbar = QToolBar(self)
+        iconCrop = QIcon()
+        iconCrop.addPixmap(QPixmap("C:\\Users\\aduongng\\Desktop\\image114.bmp"), QIcon.Selected, QIcon.On)
+        crop = toolbar.addAction(iconCrop, "&Crop")
     def openImage(self):
         imagePath, _ = QFileDialog.getOpenFileName()
         print(imagePath)
         self.pixmap = QPixmap(imagePath)
-        self.label.setPixmap( self.pixmap)
-        self.canvas.resize( self.pixmap.width(),  self.pixmap.height())
+        self.mPixmap = self.pixmap
+        self.label.setPixmap( self.mPixmap)
+        self.canvas.resize( self.mPixmap.width(),  self.mPixmap.height())
         return imagePath
     def saveImage(self):
         imagePath = self.openImage()
         if imagePath == "":
             return
-        self.pixmap.save(imagePath)
+        self.mPixmap.save(imagePath)
     def saveAs(self):
         filePath, _ = QFileDialog.getSaveFileName(self, "Save Image", "",
                                                   "BMP(*.bmp);;PNG(*.png);;JPEG(*.jpg *.jpeg);;All Files(*.*) ")
         if filePath == "":
             return
-        self.pixmap.save(filePath)
+        self.mPixmap.save(filePath)
 
     def closeEvent(self, event):
 
@@ -99,6 +115,25 @@ class Gui(QWidget):
             labels.append(count)
             count+=1
         return images_paths,labels
+
+    def mousePressEvent(self, event):
+        self.mouseDown = True
+        self.p1 = event.pos()
+        self.p2 = self.p1
+        print(self.p1)
+        print(self.p2)
+    def mouseReleaseEvent(self, event):
+        self.rect.setBottomRight(event.pos())
+        self.repaint()
+        print("huhuhu")
+    def mouseMoveEvent(self, event):
+        if self.mouseDown:
+            self.rect.setBottomRight(event.pos())
+            self.repaint()
+            print("hihi")
+    def paintEvent(self, event):
+        painter = QPainter(self.canvas)
+        painter.drawLine(self.p1,self.p2)
     def Ex(self):
         dataset = tf.data.Dataset.from_tensor_slices()
         unet = keras.models.load_model(filepath='\\FinalDocuments\\Trained_models\\UNET_b_160_IOU.h5')
