@@ -45,7 +45,7 @@ class Gui(QMainWindow):
         self.p2 = self.p1
         layout = QVBoxLayout(self.canvas)
         layout.addWidget(self.label)
-        self.image_Path = str()
+        self.image_Path = QFileDialog
     def SetMenu(self):
         menuBar = self.menuBar()
         file = menuBar.addMenu("&File")
@@ -141,7 +141,7 @@ class Gui(QMainWindow):
     def selectImage(self):
         print("haizzzzzzzzzzzzzzzzzzzzzz")
     def maskImage(self):
-        imagePath = self.image_Path.replace('/', '\\')
+        imagePath = os.path.normpath(self.image_Path)
         print(imagePath)
         im_color = cv.imread(imagePath)
         print(im_color)
@@ -153,6 +153,7 @@ class Gui(QMainWindow):
         print(self.mPixmap)
         self.label.setPixmap(self.mPixmap)
         self.canvas.resize(self.mPixmap.width(), self.mPixmap.height())
+        self.image_Path = imagePath
     def mousePressEvent(self, event):
         self.mouseDown = True
         self.p1 = event.pos()
