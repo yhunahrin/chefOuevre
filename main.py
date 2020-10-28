@@ -128,6 +128,12 @@ class Gui(QMainWindow):
             count+=1
         return images_paths,labels
     def cropImage(self):
+         rect = QRect(300, 300, 160, 160)
+         cropped = self.mPixmap.copy(rect)
+         self.mPixmap =  cropped
+         self.label.setPixmap(self.mPixmap)
+         self.canvas.resize(self.mPixmap.width(),self.mPixmap.height())
+    def selectImage(self):
         print("haizzzzzzzzzzzzzzzzzzzzzz")
     def mousePressEvent(self, event):
         self.mouseDown = True
@@ -144,11 +150,8 @@ class Gui(QMainWindow):
             self.rect.setBottomRight(event.pos())
             self.repaint()
             print("hihi")
-    def selectImage(self,event):
-        print("haizzzzzzzzzzzzzzzzzzzzzz")
-        painter = QPainter(self.canvas)
-        painter.drawLine({285, 378},{279, 384})
-
+    def paintEvent(self, event):
+        painter = QPainter(self)
     def Ex(self):
         dataset = tf.data.Dataset.from_tensor_slices()
         unet = keras.models.load_model(filepath='\\FinalDocuments\\Trained_models\\UNET_b_160_IOU.h5')
