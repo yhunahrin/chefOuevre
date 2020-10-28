@@ -226,6 +226,92 @@ class Gui(QMainWindow):
         model = Model(inputs=[input_img], outputs=[output_img])
         return output_img
 
+    def get_vgg8():
+        c1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(input_img)
+
+        p1 = MaxPooling2D((2,2))(c1)
+        c2 = Conv2D(128, 3, activation='relu', padding='same', kernel_initializer='he_normal')(p1)
+
+        p2 = MaxPooling2D((2, 2))(c2)
+        c3 = Conv2D(256, 3, activation='relu', padding='same', kernel_initializer='he_normal')(p2)
+
+        p3 = MaxPooling2D((2, 2))(c3)
+        c4 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(p3)
+        d4 = Dropout(0.5)(c4)
+
+        p4 = MaxPooling2D((2, 2))(d4)
+        c5 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(p4)
+        d5 = Dropout(0.5)(c5)
+
+        p5 = MaxPooling2D((2, 2))(d5)
+        f1 = Flatten()(p5)
+        fe6 = Dense(units=4096, activation="relu")(f1)
+        d6 = Dropout(0.5)(fe6)
+
+        fe7 = Dense(units=4096, activation="relu")(d6)
+        d7 = Dropout(0.5)(fe7)
+        return
+    def get_vgg11():
+        c1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(input_img)
+
+        p1 = MaxPooling2D((2,2))(c1)
+        c2 = Conv2D(128, 3, activation='relu', padding='same', kernel_initializer='he_normal')(p1)
+
+        p2 = MaxPooling2D((2, 2))(c2)
+        c3 = Conv2D(256, 3, activation='relu', padding='same', kernel_initializer='he_normal')(p2)
+        c3 = Conv2D(256, 3, activation='relu', padding='same', kernel_initializer='he_normal')(c3)
+
+        p3 = MaxPooling2D((2, 2))(c3)
+        c4 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(p3)
+        c4 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(c4)
+        d4 = Dropout(0.5)(c4)
+
+        p4 = MaxPooling2D((2, 2))(d4)
+        c5 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(p4)
+        c5 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(c5)
+        d5 = Dropout(0.5)(c5)
+
+        p5 = MaxPooling2D((2, 2))(d5)
+        f1 = Flatten()(p5)
+        fe6 = Dense(units=4096, activation="relu")(f1)
+        d6 = Dropout(0.5)(fe6)
+
+        fe7 = Dense(units=4096, activation="relu")(d6)
+        d7 = Dropout(0.5)(fe7)
+        return
+
+    def get_vgg16():
+        c1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(input_img)
+
+        p1 = MaxPooling2D((2, 2))(c1)
+        c2 = Conv2D(128, 3, activation='relu', padding='same', kernel_initializer='he_normal')(p1)
+        c2 = Conv2D(128, 3, activation='relu', padding='same', kernel_initializer='he_normal')(c2)
+
+        p2 = MaxPooling2D((2, 2))(c2)
+        c3 = Conv2D(256, 3, activation='relu', padding='same', kernel_initializer='he_normal')(p2)
+        c3 = Conv2D(256, 3, activation='relu', padding='same', kernel_initializer='he_normal')(c3)
+        c3 = Conv2D(256, 3, activation='relu', padding='same', kernel_initializer='he_normal')(c3)
+
+        p3 = MaxPooling2D((2, 2))(c3)
+        c4 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(p3)
+        c4 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(c4)
+        c4 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(c4)
+        d4 = Dropout(0.5)(c4)
+
+        p4 = MaxPooling2D((2, 2))(d4)
+        c5 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(p4)
+        c5 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(c5)
+        c5 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(c5)
+        d5 = Dropout(0.5)(c5)
+
+        p5 = MaxPooling2D((2, 2))(d5)
+        f1 = Flatten()(p5)
+        fe6 = Dense(units=4096, activation="relu")(f1)
+        d6 = Dropout(0.5)(fe6)
+
+        fe7 = Dense(units=4096, activation="relu")(d6)
+        d7 = Dropout(0.5)(fe7)
+        return
 def main():
 
     app = QApplication(sys.argv)
