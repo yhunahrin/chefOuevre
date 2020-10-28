@@ -2,7 +2,7 @@ import sys
 import h5py
 from PyQt5.QtCore import QPoint, QRect
 from PyQt5.QtWidgets import QWidget, QMessageBox, QApplication, QLabel, QMenu, QMenuBar, QAction,QFileDialog,QGroupBox,QVBoxLayout,QToolBar,QMainWindow
-from PyQt5.QtGui import QIcon,QPixmap,QPainter,QPen
+from PyQt5.QtGui import QIcon,QPixmap,QPainter,QPen,QImage
 from tensorflow import keras
 import tensorflow as tf
 import os
@@ -12,6 +12,7 @@ from keras.layers import *
 from keras.optimizers import *
 from keras import backend as keras
 import cv2 as cv
+import ast
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
@@ -80,6 +81,10 @@ class Gui(QMainWindow):
         crop = toolbar.addAction(iconCrop, "&Crop")
         crop.triggered.connect(self.cropImage)
 
+        iconMask = QIcon()
+        iconMask.addPixmap(QPixmap("C:\\Users\\aduongng\\Desktop\\chems.jpg"), QIcon.Selected, QIcon.On)
+        mask = toolbar.addAction(iconMask, "&Mask")
+        mask.triggered.connect(self.maskImage)
 
     def openImage(self):
         imagePath, _ = QFileDialog.getOpenFileName()
@@ -92,11 +97,11 @@ class Gui(QMainWindow):
     def saveImage(self):
         self.mPixmap.save(self.image_Path)
     def saveAs(self):
-        filePath, _ = QFileDialog.getSaveFileName(self, "Save Image", "",
+        self.image_Path, _ = QFileDialog.getSaveFileName(self, "Save Image", "",
                                                   "BMP(*.bmp);;PNG(*.png);;JPEG(*.jpg *.jpeg);;All Files(*.*) ")
-        if filePath == "":
+        if self.image_Path == "":
             return
-        self.mPixmap.save(filePath)
+        self.mPixmap.save(self.image_Path)
 
     def closeEvent(self, event):
 
@@ -128,13 +133,26 @@ class Gui(QMainWindow):
             count+=1
         return images_paths,labels
     def cropImage(self):
-         rect = QRect(300, 300, 160, 160)
+         rect = QRect(300, 300, 360, 360)
          cropped = self.mPixmap.copy(rect)
-         self.mPixmap =  cropped
+         self.mPixmap = cropped
          self.label.setPixmap(self.mPixmap)
          self.canvas.resize(self.mPixmap.width(),self.mPixmap.height())
     def selectImage(self):
         print("haizzzzzzzzzzzzzzzzzzzzzz")
+    def maskImage(self):
+        imagePath = self.image_Path.replace('/', '\\')
+        print(imagePath)
+        im_color = cv.imread(imagePath)
+        print(im_color)
+        i, im = cv.threshold(im_color, 10, 255, cv.THRESH_BINARY_INV)
+        height, width, channel = im.shape
+        bytesPerLine = 3 * width
+        qImg = QImage(im.data, width, height,bytesPerLine, QImage.Format_RGB888)
+        self.mPixmap = QPixmap.fromImage(qImg)
+        print(self.mPixmap)
+        self.label.setPixmap(self.mPixmap)
+        self.canvas.resize(self.mPixmap.width(), self.mPixmap.height())
     def mousePressEvent(self, event):
         self.mouseDown = True
         self.p1 = event.pos()
