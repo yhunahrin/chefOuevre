@@ -133,13 +133,14 @@ class Gui(QMainWindow):
             count+=1
         return images_paths,labels
     def cropImage(self):
-         rect = QRect(300, 300, 360, 360)
+         rect = QRect(168, 89, 380, 372)
          cropped = self.mPixmap.copy(rect)
          self.mPixmap = cropped
          self.label.setPixmap(self.mPixmap)
          self.canvas.resize(self.mPixmap.width(),self.mPixmap.height())
     def selectImage(self):
-        print("haizzzzzzzzzzzzzzzzzzzzzz")
+        painter = QPainter(self.mPixmap)
+        painter.drawRect(300, 300, 360, 360)
     def maskImage(self):
         imagePath = os.path.normpath(self.image_Path)
         print(imagePath)
