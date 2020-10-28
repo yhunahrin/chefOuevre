@@ -1,7 +1,7 @@
 import sys
 import h5py
 from PyQt5.QtCore import QPoint, QRect
-from PyQt5.QtWidgets import QWidget, QMessageBox, QApplication, QLabel, QMenu, QMenuBar, QAction,QFileDialog,QGroupBox,QVBoxLayout,QToolBar
+from PyQt5.QtWidgets import QWidget, QMessageBox, QApplication, QLabel, QMenu, QMenuBar, QAction,QFileDialog,QGroupBox,QVBoxLayout,QToolBar,QMainWindow
 from PyQt5.QtGui import QIcon,QPixmap,QPainter,QPen
 from tensorflow import keras
 import tensorflow as tf
@@ -15,7 +15,7 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-class Gui(QWidget):
+class Gui(QMainWindow):
 
     def __init__(self):
         super().__init__()
@@ -24,48 +24,63 @@ class Gui(QWidget):
 
     def setUI(self):
         self.SetMenu()
-        self.setGeometry(300, 250, 1100, 600)
+        self.setGeometry(300, 300, 1100, 600)
         self.setWindowTitle('Icon')
         self.setWindowIcon(QIcon('ex.png'))
         self.setWindowTitle('SegmentPhoto')
         self.label = QLabel()
         self.canvas = QGroupBox(self)
         self.canvas.setStyleSheet("QGroupBox { background-color: white ;border: 1px solid #9F9B9B}")
-        self.canvas.move(100, 30)
+        self.canvas.move(100, 55)
         self.canvas.resize(900, 400)
         self.mPixmap = QPixmap()
+        self.mousePos = QPoint()
+        self.mouseDown = False
+        self.rect = QRect()
         self.p1 = QPoint()
         self.p1.setX(0)
         self.p1.setY(0)
         self.p2 = QPoint()
         self.p2 = self.p1
-        self.mousePos = QPoint()
-        self.mouseDown = False
-        self.rect = QRect()
         layout = QVBoxLayout(self.canvas)
         layout.addWidget(self.label)
+        self.image_Path = str()
     def SetMenu(self):
-        bar = QMenuBar(self)
-        file = bar.addMenu("&File")
-        edit = bar.addMenu("&Edit")
-        image = bar.addMenu("&Image")
-        view = bar.addMenu("&View")
-        help = bar.addMenu("&Help")
+        menuBar = self.menuBar()
+        file = menuBar.addMenu("&File")
+        edit = menuBar.addMenu("&Edit")
+        image = menuBar.addMenu("&Image")
+        view = menuBar.addMenu("&View")
+        help = menuBar.addMenu("&Help")
+
+
         file.addAction("New...")
+
         open = QAction('Open..', self)
         open.triggered.connect(self.openImage)
         file.addAction(open)
+
         save = QAction("Save..", self)
         save.setShortcut("Ctrl+S")
         save.triggered.connect(self.saveImage)
         file.addAction(save)
+
         saveAs = QAction("SaveAs..", self)
         saveAs.triggered.connect(self.saveAs)
         file.addAction(saveAs)
-        toolbar = QToolBar(self)
+
+        toolbar = self.addToolBar("ToolBar")
+        iconSelect = QIcon()
+        iconSelect.addPixmap(QPixmap("C:\\Users\\aduongng\\Desktop\\image61.bmp"), QIcon.Selected, QIcon.On)
+        select = toolbar.addAction(iconSelect, "&Select")
+        select.triggered.connect(self.selectImage)
+
         iconCrop = QIcon()
-        iconCrop.addPixmap(QPixmap("C:\\Users\\aduongng\\Desktop\\image114.bmp"), QIcon.Selected, QIcon.On)
+        iconCrop.addPixmap(QPixmap("C:\\Users\\aduongng\\Desktop\\chems.jpg"), QIcon.Selected, QIcon.On)
         crop = toolbar.addAction(iconCrop, "&Crop")
+        crop.triggered.connect(self.cropImage)
+
+
     def openImage(self):
         imagePath, _ = QFileDialog.getOpenFileName()
         print(imagePath)
@@ -73,12 +88,9 @@ class Gui(QWidget):
         self.mPixmap = self.pixmap
         self.label.setPixmap( self.mPixmap)
         self.canvas.resize( self.mPixmap.width(),  self.mPixmap.height())
-        return imagePath
+        self.image_Path = imagePath
     def saveImage(self):
-        imagePath = self.openImage()
-        if imagePath == "":
-            return
-        self.mPixmap.save(imagePath)
+        self.mPixmap.save(self.image_Path)
     def saveAs(self):
         filePath, _ = QFileDialog.getSaveFileName(self, "Save Image", "",
                                                   "BMP(*.bmp);;PNG(*.png);;JPEG(*.jpg *.jpeg);;All Files(*.*) ")
@@ -115,7 +127,8 @@ class Gui(QWidget):
             labels.append(count)
             count+=1
         return images_paths,labels
-
+    def cropImage(self):
+        print("haizzzzzzzzzzzzzzzzzzzzzz")
     def mousePressEvent(self, event):
         self.mouseDown = True
         self.p1 = event.pos()
@@ -131,9 +144,11 @@ class Gui(QWidget):
             self.rect.setBottomRight(event.pos())
             self.repaint()
             print("hihi")
-    def paintEvent(self, event):
+    def selectImage(self,event):
+        print("haizzzzzzzzzzzzzzzzzzzzzz")
         painter = QPainter(self.canvas)
-        painter.drawLine(self.p1,self.p2)
+        painter.drawLine({285, 378},{279, 384})
+
     def Ex(self):
         dataset = tf.data.Dataset.from_tensor_slices()
         unet = keras.models.load_model(filepath='\\FinalDocuments\\Trained_models\\UNET_b_160_IOU.h5')
