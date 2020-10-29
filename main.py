@@ -35,17 +35,14 @@ class Gui(QMainWindow):
         self.canvas.move(100, 55)
         self.canvas.resize(900, 400)
         self.mPixmap = QPixmap()
-        self.mousePos = QPoint()
-        self.mouseDown = False
-        self.rect = QRect()
-        self.p1 = QPoint()
-        self.p1.setX(0)
-        self.p1.setY(0)
-        self.p2 = QPoint()
-        self.p2 = self.p1
         layout = QVBoxLayout(self.canvas)
         layout.addWidget(self.label)
         self.image_Path = QFileDialog
+        self.x0 = 0
+        self.y0 = 0
+        self.x1 = 0
+        self.y1 = 0
+        self.flag = False
     def SetMenu(self):
         menuBar = self.menuBar()
         file = menuBar.addMenu("&File")
@@ -133,14 +130,17 @@ class Gui(QMainWindow):
             count+=1
         return images_paths,labels
     def cropImage(self):
-         rect = QRect(168, 89, 380, 372)
+         rect = QRect(self.x0, self.y0, abs(self.x1 - self.x0), abs(self.y1 - self.y0))
          cropped = self.mPixmap.copy(rect)
          self.mPixmap = cropped
          self.label.setPixmap(self.mPixmap)
          self.canvas.resize(self.mPixmap.width(),self.mPixmap.height())
     def selectImage(self):
-        painter = QPainter(self.mPixmap)
-        painter.drawRect(300, 300, 360, 360)
+        super().paintEvent(event)
+        rect = QRect(self.x0, self.y0, abs(self.x1 - self.x0), abs(self.y1 - self.y0))
+        painter = QPainter(self)
+        painter.setPen(QPen(Qt.red, 2, Qt.SolidLine))
+        painter.drawRect(rect)
     def maskImage(self):
         imagePath = os.path.normpath(self.image_Path)
         print(imagePath)
@@ -156,22 +156,17 @@ class Gui(QMainWindow):
         self.canvas.resize(self.mPixmap.width(), self.mPixmap.height())
         self.image_Path = imagePath
     def mousePressEvent(self, event):
-        self.mouseDown = True
-        self.p1 = event.pos()
-        self.p2 = self.p1
-        print(self.p1)
-        print(self.p2)
+        self.flag = True
+        self.x0 = event.x()
+        self.y0 = event.y()
+        print("hihi")
     def mouseReleaseEvent(self, event):
-        self.rect.setBottomRight(event.pos())
-        self.repaint()
-        print("huhuhu")
+        self.flag = False
     def mouseMoveEvent(self, event):
-        if self.mouseDown:
-            self.rect.setBottomRight(event.pos())
-            self.repaint()
-            print("hihi")
-    def paintEvent(self, event):
-        painter = QPainter(self)
+        if self.flag:
+            self.x1 = event.x()
+            self.y1 = event.y()
+            self.update()
     def Ex(self):
         dataset = tf.data.Dataset.from_tensor_slices()
         unet = keras.models.load_model(filepath='\\FinalDocuments\\Trained_models\\UNET_b_160_IOU.h5')
@@ -318,9 +313,5 @@ def main():
     ex = Gui()
     ex.show()
     sys.exit(app.exec_())
-    im_color = cv.imread("lena.png", cv.IMREAD_COLOR)
-    im_gray = cv.cvtColor(im_color, cv.COLOR_BGR2GRAY)
-    _, mask = cv.threshold(im_gray, thresh=180, maxval=255, type=cv.THRESH_BINARY)
-    cv.imshow("binary mask", mask)
 if __name__ == '__main__':
     main()
